@@ -1,150 +1,406 @@
 <!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>教师节小游戏</title>
-  <meta name="description" content="老师遇见三个情境，做出选择触发小动画，多结局。" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root{--bg1:#fffaf1;--bg2:#fff5e6;--ink:#111827;--muted:#6b7280;--brand:#f59e0b;--accent:#10b981;--card:#ffffff;--ring:rgba(0,0,0,.08)}
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:"Noto Sans SC",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:linear-gradient(120deg,var(--bg1),var(--bg2));background-size:200% 200%;animation:bgshift 12s ease-in-out infinite}
-    @keyframes bgshift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(8px);background:linear-gradient(#ffffffcc,#ffffff88);border-bottom:1px solid var(--ring)}
-    .wrap{max-width:980px;margin:0 auto;padding:20px}
-    h1{margin:0;font-weight:900;font-size:clamp(1.8rem,4vw,2.4rem)}
-    .sub{color:var(--muted)}
-    .card{background:var(--card);border:1px solid var(--ring);border-radius:18px;box-shadow:0 10px 30px rgba(17,24,39,.06)}
-    .game{padding:16px}
-    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    button,.btn{appearance:none;border:1px solid var(--ring);background:#fff;color:var(--ink);border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;transition:.2s transform,.2s box-shadow;box-shadow:0 2px 0 rgba(0,0,0,.05)}
-    button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
-    .btn-primary{background:var(--brand);color:#111827;border-color:#00000010}
-    .btn-accent{background:var(--accent);color:#022c22;border-color:#00000010}
-    .pill{display:inline-flex;gap:8px;align-items:center;background:#fff;border:1px dashed #0001;border-radius:999px;padding:6px 10px;font-size:12px;color:#6b7280}
-    .log{white-space:pre-wrap;line-height:1.8}
-    #choices{display:grid;grid-template-columns:repeat(1,1fr);gap:10px;margin-top:12px}
-    .choice{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid var(--ring);background:#fff;cursor:pointer;position:relative;overflow:hidden}
-    .choice span{font-weight:700}
-    .choice:active{transform:scale(.99)}
-    .ripple{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;background:rgba(0,0,0,.06)}
-    @keyframes ripple{to{transform:scale(4);opacity:0}}
-    footer{color:#6b7280;text-align:center;padding:24px 0}
-    /* 进度与能量 */
-    .timeline{display:flex;align-items:center;gap:10px;margin:6px 0}
-    .dot{width:12px;height:12px;border-radius:50%;border:2px solid #d1d5db;background:#fff}
-    .dot.active{background:linear-gradient(135deg,#fde68a,#86efac);border-color:#f59e0b;box-shadow:0 0 0 3px #fff}
-    .bar{flex:1;height:10px;background:#f3f4f6;border-radius:999px;overflow:hidden;min-width:120px}
-    .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#86efac,#fcd34d);transition:width .35s ease}
-    /* 画布容器 */
-    .stage{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--ring);background:#fff}
-    .caption{position:absolute;left:12px;bottom:10px;background:rgba(255,255,255,.8);border:1px solid var(--ring);padding:6px 10px;border-radius:999px;font-size:12px}
-  </style>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>教师节小游戏</title>
+    <meta name="description" content="老师遇见三个情境，做出选择触发小动画，多结局。"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --bg1: #fffaf1;
+        --bg2: #fff5e6;
+        --ink: #111827;
+        --muted: #6b7280;
+        --brand: #f59e0b;
+        --accent: #10b981;
+        --card: #ffffff;
+        --ring: rgba(0, 0, 0, .08)
+    }
+
+    * {
+        box-sizing: border-box
+    }
+
+    html, body {
+        height: 100%
+    }
+
+    body {
+        margin: 0;
+        font-family: "Noto Sans SC", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        color: var(--ink);
+        background: linear-gradient(120deg, var(--bg1), var(--bg2));
+        background-size: 200% 200%;
+        animation: bgshift 12s ease-in-out infinite
+    }
+
+    @keyframes bgshift {
+        0% {
+            background-position:0% 50%
+        }
+
+        50% {
+            background-position:100% 50%
+        }
+
+        100% {
+            background-position: 0% 50%
+        }
+    }
+
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+        background: linear-gradient(#ffffffcc, #ffffff88);
+        border-bottom: 1px solid var(--ring)
+    }
+
+    .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 20px
+    }
+
+    h1 {
+        margin: 0;
+        font-weight: 900;
+        font-size: clamp(1.8rem, 4vw, 2.4rem)
+    }
+
+    .sub {
+        color: var(--muted)
+    }
+
+    .card {
+        background: var(--card);
+        border: 1px solid var(--ring);
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(17, 24, 39, .06)
+    }
+
+    .game {
+        padding: 16px
+    }
+
+    .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center
+    }
+
+    button, .btn {
+        appearance: none;
+        border: 1px solid var(--ring);
+        background: #fff;
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .2s transform, .2s box-shadow;
+        box-shadow: 0 2px 0 rgba(0, 0, 0, .05)
+    }
+
+    button:hover, .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, .08)
+    }
+
+    .btn-primary {
+        background: var(--brand);
+        color: #111827;
+        border-color: #00000010
+    }
+
+    .btn-accent {
+        background: var(--accent);
+        color: #022c22;
+        border-color: #00000010
+    }
+
+    .pill {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        background: #fff;
+        border: 1px dashed #0001;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #6b7280
+    }
+
+    .log {
+        white-space: pre-wrap;
+        line-height: 1.8
+    }
+
+    #choices {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 10px;
+        margin-top: 12px
+    }
+
+    .choice {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--ring);
+        background: #fff;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden
+    }
+
+    .choice span {
+        font-weight: 700
+    }
+
+    .choice:active {
+        transform: scale(.99)
+    }
+
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple .6s linear;
+        background: rgba(0, 0, 0, .06)
+    }
+
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0
+        }
+    }
+
+    footer {
+        color: #6b7280;
+        text-align: center;
+        padding: 24px 0
+    }/* 进度与能量 */
+
+    .timeline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 6px 0
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        background: #fff
+    }
+
+    .dot.active {
+        background: linear-gradient(135deg, #fde68a, #86efac);
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px #fff
+    }
+
+    .bar {
+        flex: 1;
+        height: 10px;
+        background: #f3f4f6;
+        border-radius: 999px;
+        overflow: hidden;
+        min-width: 120px
+    }
+
+    .bar > i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #86efac, #fcd34d);
+        transition: width .35s ease
+    }/* 画布容器 */
+
+    .stage {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--ring);
+        background: #fff
+    }
+
+    .caption {
+        position: absolute;
+        left: 12px;
+        bottom: 10px;
+        background: rgba(255, 255, 255, .8);
+        border: 1px solid var(--ring);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px
+    }
+    </style>
 </head>
 <body>
-  <canvas id="confetti" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:20"></canvas>
-  <header>
-    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span class="pill">🎓 教师节 · <span id="year"></span></span>
-      </div>
-      <nav class="row">
-        <button class="btn" id="restart">重新开始</button>
-        <button class="btn" id="share">复制分享链接</button>
-      </nav>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <section class="card game">
-      <div class="row" style="justify-content:space-between">
-        <h1>教师节互动小游戏</h1>
-        <div class="row" style="min-width:280px">
-          <span class="pill">💗 温暖值：<strong id="warm">0</strong>/3</span>
-          <div class="bar"><i id="barfill"></i></div>
-          <div class="timeline">
-            <span class="dot active" id="step1"></span>
-            <span class="dot" id="step2"></span>
-            <span class="dot" id="step3"></span>
-          </div>
+    <canvas id="confetti" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:20">
+    </canvas>
+    <header>
+        <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+                <span class="pill">
+                    🎓 教师节 · 
+                    <span id="year"></span>
+                </span>
+            </div>
+            <nav class="row">
+                <button class="btn" id="restart">重新开始</button>
+                <button class="btn" id="share">复制分享链接</button>
+            </nav>
         </div>
-      </div>
+    </header>
 
-      <!-- 动画舞台：SVG 火柴人 + 场景元素 -->
-      <div class="stage" style="aspect-ratio:16/9; margin-top:10px">
-        <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%" aria-label="动画舞台">
-          <!-- 背景地面线 -->
-          <rect x="0" y="0" width="800" height="450" fill="#ffffff"/>
-          <rect x="0" y="340" width="800" height="110" fill="#f3f4f6"/>
-          <!-- 道具：走廊/办公室/教室，按步骤切换显隐 -->
-          <g id="scene-corridor">
-            <rect x="40" y="60" width="720" height="220" fill="#fef3c7" stroke="#f59e0b" opacity=".25"/>
-            <text x="50" y="85" font-size="18" fill="#6b7280">走廊</text>
-            <!-- 学生（小火柴）与模型盒 -->
-            <g id="student" transform="translate(560,320)">
-              <circle cx="0" cy="-60" r="10" fill="#111827"/>
-              <line x1="0" y1="-50" x2="0" y2="-15" stroke="#111827" stroke-width="4"/>
-              <line x1="0" y1="-40" x2="-12" y2="-20" stroke="#111827" stroke-width="4"/>
-              <line x1="0" y1="-40" x2="14" y2="-22" stroke="#111827" stroke-width="4"/>
-              <line x1="0" y1="-15" x2="-12" y2="10" stroke="#111827" stroke-width="4"/>
-              <line x1="0" y1="-15" x2="12" y2="10" stroke="#111827" stroke-width="4"/>
-              <rect x="-14" y="-25" width="28" height="18" fill="#60a5fa" stroke="#1f2937"/>
-            </g>
-          </g>
+    <main class="wrap">
+        <section class="card game">
+            <div class="row" style="justify-content:space-between">
+                <h1>教师节互动小游戏</h1>
+                <div class="row" style="min-width:280px">
+                    <span class="pill">
+                        💗 温暖值：
+                        <strong id="warm">0</strong>
+                        /3
+                    </span>
+                    <div class="bar">
+                        <i id="barfill"></i>
+                    </div>
+                    <div class="timeline">
+                        <span class="dot active" id="step1"></span>
+                        <span class="dot" id="step2"></span>
+                        <span class="dot" id="step3"></span>
+                    </div>
+                </div>
+            </div>
 
-          <g id="scene-office" opacity="0">
-            <rect x="40" y="60" width="720" height="220" fill="#e0e7ff" stroke="#3b82f6" opacity=".25"/>
-            <text x="50" y="85" font-size="18" fill="#6b7280">办公室</text>
-            <!-- 桌子 + 电脑 -->
-            <rect x="520" y="270" width="180" height="20" fill="#9ca3af"/>
-            <rect x="580" y="200" width="80" height="50" fill="#111827" rx="6"/>
-            <rect x="598" y="212" width="44" height="24" fill="#f3f4f6"/>
-          </g>
+            <!-- 动画舞台：SVG 火柴人 + 场景元素 -->
+            <div class="stage" style="aspect-ratio:16/9; margin-top:10px">
+                <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%" aria-label="动画舞台">
+                    <!-- 背景地面线 -->
+                    <rect x="0" y="0" width="800" height="450" fill="#ffffff"/>
+                    <rect x="0" y="340" width="800" height="110" fill="#f3f4f6"/>
+                    <!-- 道具：走廊/办公室/教室，按步骤切换显隐 -->
+                    <g id="scene-corridor">
+                        <rect x="40" y="60" width="720" height="220" fill="#fef3c7" stroke="#f59e0b" opacity=".25"/>
+                        <text x="50" y="85" font-size="18" fill="#6b7280">走廊</text>
+                        <!-- 学生（小火柴）与模型盒 -->
+                        <g id="student" transform="translate(560,320)">
+                            <circle cx="0" cy="-60" r="10" fill="#111827"/>
+                            <line x1="0" y1="-50" x2="0" y2="-15" stroke="#111827" stroke-width="4"/>
+                            <line x1="0" y1="-40" x2="-12" y2="-20" stroke="#111827" stroke-width="4"/>
+                            <line x1="0" y1="-40" x2="14" y2="-22" stroke="#111827" stroke-width="4"/>
+                            <line x1="0" y1="-15" x2="-12" y2="10" stroke="#111827" stroke-width="4"/>
+                            <line x1="0" y1="-15" x2="12" y2="10" stroke="#111827" stroke-width="4"/>
+                            <rect x="-14" y="-25" width="28" height="18" fill="#60a5fa" stroke="#1f2937"/>
+                        </g>
+                    </g>
 
-          <g id="scene-class" opacity="0">
-            <rect x="40" y="60" width="720" height="220" fill="#dcfce7" stroke="#10b981" opacity=".25"/>
-            <text x="50" y="85" font-size="18" fill="#6b7280">教室</text>
-            <!-- 黑板与横幅 -->
-            <rect x="520" y="160" width="180" height="100" fill="#065f46" rx="8"/>
-            <text x="540" y="210" font-size="18" fill="#fef3c7">教师节快乐</text>
-            <path id="banner" d="M80,150 Q160,120 240,150 Q320,180 400,150" fill="none" stroke="#f59e0b" stroke-width="6"/>
-          </g>
+                    <g id="scene-office" opacity="0">
+                        <rect x="40" y="60" width="720" height="220" fill="#e0e7ff" stroke="#3b82f6" opacity=".25"/>
+                        <text x="50" y="85" font-size="18" fill="#6b7280">办公室</text>
+                        <!-- 桌子 + 电脑 -->
+                        <rect x="520" y="270" width="180" height="20" fill="#9ca3af"/>
+                        <rect x="580" y="200" width="80" height="50" fill="#111827" rx="6"/>
+                        <rect x="598" y="212" width="44" height="24" fill="#f3f4f6"/>
+                    </g>
 
-          <!-- 主角：老师（火柴人） -->
-          <g id="teacher" transform="translate(120,320)">
-            <circle id="t-head" cx="0" cy="-60" r="14" fill="#111827"/>
-            <line id="t-body" x1="0" y1="-46" x2="0" y2="-6" stroke="#111827" stroke-width="5"/>
-            <line id="t-armL" x1="0" y1="-36" x2="-18" y2="-18" stroke="#111827" stroke-width="5"/>
-            <line id="t-armR" x1="0" y1="-36" x2="18" y2="-18" stroke="#111827" stroke-width="5"/>
-            <line id="t-legL" x1="0" y1="-6" x2="-12" y2="18" stroke="#111827" stroke-width="5"/>
-            <line id="t-legR" x1="0" y1="-6" x2="12" y2="18" stroke="#111827" stroke-width="5"/>
-          </g>
-        </svg>
-        <div id="caption" class="caption">🎓 老师：出发！</div>
-      </div>
+                    <g id="scene-class" opacity="0">
+                        <rect x="40" y="60" width="720" height="220" fill="#dcfce7" stroke="#10b981" opacity=".25"/>
+                        <text x="50" y="85" font-size="18" fill="#6b7280">教室</text>
+                        <!-- 黑板与横幅 -->
+                        <rect x="520" y="160" width="180" height="100" fill="#065f46" rx="8"/>
+                        <text x="540" y="210" font-size="18" fill="#fef3c7">教师节快乐</text>
+                        <path id="banner" d="M80,150 Q160,120 240,150 Q320,180 400,150" fill="none" stroke="#f59e0b" stroke-width="6"/>
+                    </g>
 
-      <p id="sceneText" class="sub" style="margin-top:10px"></p>
-      <div id="choices"></div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn-accent" id="celebrate" style="display:none">🎉 撒花庆祝</button>
-      </div>
-    </section>
-  </main>
+                    <!-- 主角：老师（火柴人） -->
+                    <g id="teacher" transform="translate(120,320)">
+                        <circle id="t-head" cx="0" cy="-60" r="14" fill="#111827"/>
+                        <line id="t-body" x1="0" y1="-46" x2="0" y2="-6" stroke="#111827" stroke-width="5"/>
+                        <line id="t-armL" x1="0" y1="-36" x2="-18" y2="-18" stroke="#111827" stroke-width="5"/>
+                        <line id="t-armR" x1="0" y1="-36" x2="18" y2="-18" stroke="#111827" stroke-width="5"/>
+                        <line id="t-legL" x1="0" y1="-6" x2="-12" y2="18" stroke="#111827" stroke-width="5"/>
+                        <line id="t-legR" x1="0" y1="-6" x2="12" y2="18" stroke="#111827" stroke-width="5"/>
+                    </g>
+                </svg>
+                <div id="caption" class="caption">🎓 老师：出发！</div>
+            </div>
 
-  <footer>由 顾欣妮 2025/9/10 制作 · </span></footer>
+            <p id="sceneText" class="sub" style="margin-top:10px"></p>
+            <div id="choices"></div>
+            <div class="row" style="margin-top:10px">
+                <button class="btn-accent" id="celebrate" style="display:none">🎉 撒花庆祝</button>
+            </div>
+        </section>
+    </main>
 
-  <script>
+    <footer>
+        由 顾欣妮 2025/9/10 制作 · 
+    </footer>
+
+    <script>
     // ===== 彩带 =====
-    const c = document.getElementById('confetti'); const cx = c.getContext('2d');
-    function fit(){ c.width=innerWidth; c.height=innerHeight } addEventListener('resize', fit); fit();
-    let confettis=[], raf;
-    function Confetto(){ this.x=Math.random()*c.width; this.y=-20; this.vx=-1+Math.random()*2; this.vy=2+Math.random()*3; this.r=Math.random()*Math.PI; this.vr=-0.1+Math.random()*0.2; this.w=8+Math.random()*8; this.h=6+Math.random()*6; const p=['#f59e0b','#10b981','#60a5fa','#f472b6','#f87171']; this.col=p[(Math.random()*p.length)|0]; }
-    function confettiBurst(n=140){ for(let i=0;i<n;i++) confettis.push(new Confetto()); cancelAnimationFrame(raf); loop(); }
-    function loop(){ cx.clearRect(0,0,c.width,c.height); confettis.forEach(f=>{ f.x+=f.vx; f.y+=f.vy; f.vy+=0.02; f.r+=f.vr; cx.save(); cx.translate(f.x,f.y); cx.rotate(f.r); cx.fillStyle=f.col; cx.fillRect(-f.w/2,-f.h/2,f.w,f.h); cx.restore(); }); confettis=confettis.filter(f=>f.y<c.height+20); if(confettis.length) raf=requestAnimationFrame(loop); }
+    const c = document.getElementById('confetti');
+    const cx = c.getContext('2d');
+    function fit() {
+        c.width = innerWidth;
+        c.height = innerHeight
+    }
+    addEventListener('resize', fit);
+    fit();
+    let confettis = [],
+        raf;
+    function Confetto() {
+        this.x = Math.random() * c.width;
+        this.y = -20;
+        this.vx = -1 + Math.random() * 2;
+        this.vy = 2 + Math.random() * 3;
+        this.r = Math.random() * Math.PI;
+        this.vr = -0.1 + Math.random() * 0.2;
+        this.w = 8 + Math.random() * 8;
+        this.h = 6 + Math.random() * 6;
+        const p = ['#f59e0b', '#10b981', '#60a5fa', '#f472b6', '#f87171'];
+        this.col = p[(Math.random() * p.length) | 0];
+    }
+    function confettiBurst(n=140) {
+        for (let i = 0; i < n; i++)
+            confettis.push(new Confetto());
+        cancelAnimationFrame(raf);
+        loop();
+    }
+    function loop() {
+        cx.clearRect(0, 0, c.width, c.height);
+        confettis.forEach(f => {
+            f.x += f.vx;
+            f.y += f.vy;
+            f.vy += 0.02;
+            f.r += f.vr;
+            cx.save();
+            cx.translate(f.x, f.y);
+            cx.rotate(f.r);
+            cx.fillStyle = f.col;
+            cx.fillRect(-f.w / 2, -f.h / 2, f.w, f.h);
+            cx.restore();
+        });
+        confettis = confettis.filter(f => f.y < c.height + 20);
+        if (confettis.length)
+            raf = requestAnimationFrame(loop);
+    }
 
     // ===== 基本信息 =====
     const now = new Date();
@@ -157,7 +413,7 @@
     const celebBtn = document.getElementById('celebrate');
     const warmEl = document.getElementById('warm');
     const barfill = document.getElementById('barfill');
-    const dots = [document.getElementById('step1'),document.getElementById('step2'),document.getElementById('step3')];
+    const dots = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
 
     const svg = document.getElementById('svg');
     const teacher = document.getElementById('teacher');
@@ -172,153 +428,309 @@
     const caption = document.getElementById('caption');
 
     // ===== 状态 =====
-    const STATE_KEY='td_stick_anim_v1';
-    let state = { step:1, warm:0 };
+    const STATE_KEY = 'td_stick_anim_v1';
+    let state = {
+        step: 1,
+        warm: 0
+    };
 
     const steps = {
-      1: {
-        text: '【晨间走廊】一个七年级学生抱着模型盒小跑，差点撞上您。',
-        options: [
-          { label:'扶住他并提醒慢行（+1 温暖）', effect:+1, anim:'help' },
-          { label:'侧身让开，示意注意安全', effect:0, anim:'dodge' },
-        ]
-      },
-      2: {
-        text: '【办公室】同事为公开课发愁，桌上PPT还没理顺。',
-        options: [
-          { label:'坐下帮他理一页大纲（+1 温暖）', effect:+1, anim:'type' },
-          { label:'拍肩打气：加油！我去备课了', effect:0, anim:'wave' },
-        ]
-      },
-      3: {
-        text: '【课堂开始】黑板角落贴着“教师节快乐”，全班在憋笑。',
-        options: [
-          { label:'以“今天每人一个想学会的小技能”开场（+1 温暖）', effect:+1, anim:'wavebig' },
-          { label:'直接点名，进入常规', effect:0, anim:'enter' },
-        ]
-      }
+        1: {
+            text: '【晨间走廊】一个七年级学生抱着模型盒小跑，差点撞上您。',
+            options: [
+            {
+                label: '扶住他并提醒慢行（+1 温暖）',
+                effect: +1,
+                anim: 'help'
+            },
+            {
+                label: '侧身让开，示意注意安全',
+                effect: 0,
+                anim: 'dodge'
+            },
+            ]
+        },
+        2: {
+            text: '【办公室】同事为公开课发愁，桌上PPT还没理顺。',
+            options: [
+            {
+                label: '坐下帮他理一页大纲（+1 温暖）',
+                effect: +1,
+                anim: 'type'
+            },
+            {
+                label: '拍肩打气：加油！我去备课了',
+                effect: 0,
+                anim: 'wave'
+            },
+            ]
+        },
+        3: {
+            text: '【课堂开始】黑板角落贴着“教师节快乐”，全班在憋笑。',
+            options: [
+            {
+                label: '以“今天每人一个想学会的小技能”开场（+1 温暖）',
+                effect: +1,
+                anim: 'wavebig'
+            },
+            {
+                label: '直接点名，进入常规',
+                effect: 0,
+                anim: 'enter'
+            },
+            ]
+        }
     };
 
     const endings = {
-      good:'【最佳结局】全班齐声：老师，教师节快乐！讲台上是雏菊、卡片和粉笔。您发现：最好的礼物，是彼此认真对待的每一天。',
-      mid:'【温暖结局】学生代表递来卡片：“谢谢您的耐心与鼓励。”您读得很慢，但心里很快就亮了起来。',
-      bad:'【下次一定】您点点头，没有多说什么。学生们交换了个眼神：“下次，我们要更勇敢地表达。”'
+        good: '【最佳结局】全班齐声：老师，教师节快乐！讲台上是雏菊、卡片和粉笔。您发现：最好的礼物，是彼此认真对待的每一天。',
+        mid: '【温暖结局】学生代表递来卡片：“谢谢您的耐心与鼓励。”您读得很慢，但心里很快就亮了起来。',
+        bad: '【下次一定】您点点头，没有多说什么。学生们交换了个眼神：“下次，我们要更勇敢地表达。”'
     };
 
-    function save(){ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
-    function load(){ try{ const s=JSON.parse(localStorage.getItem(STATE_KEY)||'{}'); if(s.step) state=s; }catch{}
+    function save() {
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }
+    function load() {
+        try {
+            const s = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+            if (s.step)
+                state = s;
+        } catch {}
     }
 
-    function setUI(){ warmEl.textContent=state.warm; barfill.style.width=(state.warm/3*100)+'%'; dots.forEach((d,i)=> d.classList.toggle('active', i < state.step)); }
+    function setUI() {
+        warmEl.textContent = state.warm;
+        barfill.style.width = (state.warm / 3 * 100) + '%';
+        dots.forEach((d, i) => d.classList.toggle('active', i < state.step));
+    }
 
     // ===== 动画工具 =====
-    function setArm(el, x2, y2){ el.setAttribute('x2', x2); el.setAttribute('y2', y2); }
-    function setLeg(el, x2, y2){ el.setAttribute('x2', x2); el.setAttribute('y2', y2); }
-    function moveTeacher(x, y, dur=600){ return animateTransform(teacher, x, y, dur); }
-    function animateTransform(node, x, y, dur){
-      const start = teacher.transform.baseVal.consolidate()?.matrix || svg.createSVGMatrix();
-      const fromX = start.e, fromY = start.f;
-      const dx = x - fromX, dy = y - fromY; const t0 = performance.now();
-      return new Promise(res=>{
-        function step(ts){ const p=Math.min(1,(ts-t0)/dur); const e = 1- Math.pow(1-p,3); const nx = fromX + dx*e; const ny = fromY + dy*e; teacher.setAttribute('transform',`translate(${nx},${ny})`);
-          // 简单摆腿
-          const swing = Math.sin(e*Math.PI*2)*10; setLeg(legL,-12,18+swing); setLeg(legR,12,18-swing);
-          if(p<1) requestAnimationFrame(step); else res(); }
-        requestAnimationFrame(step);
-      });
+    function setArm(el, x2, y2) {
+        el.setAttribute('x2', x2);
+        el.setAttribute('y2', y2);
+    }
+    function setLeg(el, x2, y2) {
+        el.setAttribute('x2', x2);
+        el.setAttribute('y2', y2);
+    }
+    function moveTeacher(x, y, dur=600) {
+        return animateTransform(teacher, x, y, dur);
+    }
+    function animateTransform(node, x, y, dur) {
+        const start = teacher.transform.baseVal.consolidate()?.matrix || svg.createSVGMatrix();
+        const fromX = start.e,
+            fromY = start.f;
+        const dx = x - fromX,
+            dy = y - fromY;
+        const t0 = performance.now();
+        return new Promise(res => {
+            function step(ts) {
+                const p = Math.min(1, (ts - t0) / dur);
+                const e = 1 - Math.pow(1 - p, 3);
+                const nx = fromX + dx * e;
+                const ny = fromY + dy * e;
+                teacher.setAttribute('transform', `translate(${nx},${ny})`);
+                // 简单摆腿
+                const swing = Math.sin(e * Math.PI * 2) * 10;
+                setLeg(legL, -12, 18 + swing);
+                setLeg(legR, 12, 18 - swing);
+                if (p < 1)
+                    requestAnimationFrame(step);
+                else
+                    res();
+            }
+            requestAnimationFrame(step);
+        });
     }
 
-    async function animHelp(){
-      caption.textContent='🤝 扶住学生';
-      await moveTeacher(520,320,700);
-      // 伸手
-      setArm(armR, 24, -26); setArm(armL, -18, -10);
-      await sleep(600);
-      setArm(armR, 18, -18); setArm(armL, -18, -18);
-      await moveTeacher(160,320,700);
-      caption.textContent='🎓 继续前进';
+    async function animHelp() {
+        caption.textContent = '🤝 扶住学生';
+        await moveTeacher(520, 320, 700);
+        // 伸手
+        setArm(armR, 24, -26);
+        setArm(armL, -18, -10);
+        await sleep(600);
+        setArm(armR, 18, -18);
+        setArm(armL, -18, -18);
+        await moveTeacher(160, 320, 700);
+        caption.textContent = '🎓 继续前进';
     }
-    async function animDodge(){
-      caption.textContent='↔️ 侧身让开';
-      await moveTeacher(420,320,500); await sleep(200); await moveTeacher(160,320,500);
-      caption.textContent='🎓 继续前进';
+    async function animDodge() {
+        caption.textContent = '↔️ 侧身让开';
+        await moveTeacher(420, 320, 500);
+        await sleep(200);
+        await moveTeacher(160, 320, 500);
+        caption.textContent = '🎓 继续前进';
     }
-    async function animType(){
-      caption.textContent='⌨️ 协助改PPT';
-      sceneOffice.setAttribute('opacity','1'); sceneCorr.setAttribute('opacity','0'); sceneClass.setAttribute('opacity','0');
-      await moveTeacher(600,320,700); for(let i=0;i<6;i++){ setArm(armR, 18, -18-(i%2?6:0)); await sleep(120);} setArm(armR, 18, -18);
-      await moveTeacher(160,320,700); caption.textContent='🎓 继续前进';
+    async function animType() {
+        caption.textContent = '⌨️ 协助改PPT';
+        sceneOffice.setAttribute('opacity', '1');
+        sceneCorr.setAttribute('opacity', '0');
+        sceneClass.setAttribute('opacity', '0');
+        await moveTeacher(600, 320, 700);
+        for (let i = 0; i < 6; i++) {
+            setArm(armR, 18, -18 - (i % 2 ? 6 : 0));
+            await sleep(120);
+        }
+        setArm(armR, 18, -18);
+        await moveTeacher(160, 320, 700);
+        caption.textContent = '🎓 继续前进';
     }
-    async function animWave(){
-      caption.textContent='👋 打气';
-      await moveTeacher(600,320,700); for(let i=0;i<4;i++){ setArm(armR, 34, -26); await sleep(120); setArm(armR, 18, -18); await sleep(120);} await moveTeacher(160,320,700);
-      caption.textContent='🎓 继续前进';
+    async function animWave() {
+        caption.textContent = '👋 打气';
+        await moveTeacher(600, 320, 700);
+        for (let i = 0; i < 4; i++) {
+            setArm(armR, 34, -26);
+            await sleep(120);
+            setArm(armR, 18, -18);
+            await sleep(120);
+        }
+        await moveTeacher(160, 320, 700);
+        caption.textContent = '🎓 继续前进';
     }
-    async function animEnter(){
-      caption.textContent='🚪 走进教室';
-      sceneClass.setAttribute('opacity','1'); sceneCorr.setAttribute('opacity','0'); sceneOffice.setAttribute('opacity','0');
-      await moveTeacher(560,320,900); await sleep(200); await moveTeacher(200,320,700); caption.textContent='🎓 继续前进';
+    async function animEnter() {
+        caption.textContent = '🚪 走进教室';
+        sceneClass.setAttribute('opacity', '1');
+        sceneCorr.setAttribute('opacity', '0');
+        sceneOffice.setAttribute('opacity', '0');
+        await moveTeacher(560, 320, 900);
+        await sleep(200);
+        await moveTeacher(200, 320, 700);
+        caption.textContent = '🎓 继续前进';
     }
-    async function animWaveBig(){
-      caption.textContent='📣 互动开场';
-      sceneClass.setAttribute('opacity','1'); sceneCorr.setAttribute('opacity','0'); sceneOffice.setAttribute('opacity','0');
-      await moveTeacher(560,320,900);
-      for(let i=0;i<6;i++){ setArm(armR, 36, -30); await sleep(120); setArm(armR, 14, -8); await sleep(120);} setArm(armR, 18, -18);
-      await moveTeacher(200,320,700); caption.textContent='🎓 继续前进';
+    async function animWaveBig() {
+        caption.textContent = '📣 互动开场';
+        sceneClass.setAttribute('opacity', '1');
+        sceneCorr.setAttribute('opacity', '0');
+        sceneOffice.setAttribute('opacity', '0');
+        await moveTeacher(560, 320, 900);
+        for (let i = 0; i < 6; i++) {
+            setArm(armR, 36, -30);
+            await sleep(120);
+            setArm(armR, 14, -8);
+            await sleep(120);
+        }
+        setArm(armR, 18, -18);
+        await moveTeacher(200, 320, 700);
+        caption.textContent = '🎓 继续前进';
     }
 
-    function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+    function sleep(ms) {
+        return new Promise(r => setTimeout(r, ms));
+    }
 
     // ===== 场景与选择 =====
-    function renderStep(){
-      setUI();
-      const sc = steps[state.step];
-      // 切换背景块
-      sceneCorr.setAttribute('opacity', state.step===1? '1':'0');
-      sceneOffice.setAttribute('opacity', state.step===2? '1':'0');
-      sceneClass.setAttribute('opacity', state.step===3? '1':'0');
-      sceneText.textContent = sc.text;
-      choicesEl.innerHTML='';
-      sc.options.forEach(op=>{
-        const b=document.createElement('button'); b.className='choice'; b.innerHTML=`<span>${op.label}</span>`; b.addEventListener('click', (e)=>{ ripple(e); pick(op); }); choicesEl.appendChild(b);
-      });
+    function renderStep() {
+        setUI();
+        const sc = steps[state.step];
+        // 切换背景块
+        sceneCorr.setAttribute('opacity', state.step === 1 ? '1' : '0');
+        sceneOffice.setAttribute('opacity', state.step === 2 ? '1' : '0');
+        sceneClass.setAttribute('opacity', state.step === 3 ? '1' : '0');
+        sceneText.textContent = sc.text;
+        choicesEl.innerHTML = '';
+        sc.options.forEach(op => {
+            const b = document.createElement('button');
+            b.className = 'choice';
+            b.innerHTML = `<span>${op.label}</span>`;
+            b.addEventListener('click', (e) => {
+                ripple(e);
+                pick(op);
+            });
+            choicesEl.appendChild(b);
+        });
     }
 
-    async function pick(op){
-      state.warm += op.effect; if(state.warm<0) state.warm=0; setUI();
-      // 触发动画
-      if(op.anim==='help') await animHelp();
-      if(op.anim==='dodge') await animDodge();
-      if(op.anim==='type') await animType();
-      if(op.anim==='wave') await animWave();
-      if(op.anim==='enter') await animEnter();
-      if(op.anim==='wavebig') await animWaveBig();
+    async function pick(op) {
+        state.warm += op.effect;
+        if (state.warm < 0)
+            state.warm = 0;
+        setUI();
+        // 触发动画
+        if (op.anim === 'help')
+            await animHelp();
+        if (op.anim === 'dodge')
+            await animDodge();
+        if (op.anim === 'type')
+            await animType();
+        if (op.anim === 'wave')
+            await animWave();
+        if (op.anim === 'enter')
+            await animEnter();
+        if (op.anim === 'wavebig')
+            await animWaveBig();
 
-      if(state.step<3){ state.step++; save(); renderStep(); }
-      else { end(); }
+        if (state.step < 3) {
+            state.step++;
+            save();
+            renderStep();
+        }
+        else {
+            end();
+        }
     }
 
     // 结局
-    function end(){
-      let txt; if(state.warm>=2) txt=endings.good; else if(state.warm===1) txt=endings.mid; else txt=endings.bad;
-      sceneText.textContent = txt;
-      choicesEl.innerHTML='';
-      celebBtn.style.display='inline-block';
-      confettiBurst(); save();
+    function end() {
+        let txt;
+        if (state.warm >= 2)
+            txt = endings.good;
+        else if (state.warm === 1)
+            txt = endings.mid;
+        else
+            txt = endings.bad;
+        sceneText.textContent = txt;
+        choicesEl.innerHTML = '';
+        celebBtn.style.display = 'inline-block';
+        confettiBurst();
+        save();
     }
 
     // Ripple 效果
-    function ripple(e){ const btn=e.currentTarget; const r=document.createElement('span'); const d=Math.max(btn.clientWidth,btn.clientHeight); r.style.width=r.style.height=d+'px'; const rect=btn.getBoundingClientRect(); r.style.left=(e.clientX-rect.left-d/2)+'px'; r.style.top=(e.clientY-rect.top-d/2)+'px'; r.className='ripple'; btn.appendChild(r); setTimeout(()=>r.remove(),600); }
+    function ripple(e) {
+        const btn = e.currentTarget;
+        const r = document.createElement('span');
+        const d = Math.max(btn.clientWidth, btn.clientHeight);
+        r.style.width = r.style.height = d + 'px';
+        const rect = btn.getBoundingClientRect();
+        r.style.left = (e.clientX - rect.left - d / 2) + 'px';
+        r.style.top = (e.clientY - rect.top - d / 2) + 'px';
+        r.className = 'ripple';
+        btn.appendChild(r);
+        setTimeout(() => r.remove(), 600);
+    }
 
-    function reset(){ state={step:1,warm:0}; teacher.setAttribute('transform','translate(120,320)'); sceneCorr.setAttribute('opacity','1'); sceneOffice.setAttribute('opacity','0'); sceneClass.setAttribute('opacity','0'); caption.textContent='🎓 老师：出发！'; celebBtn.style.display='none'; save(); renderStep(); }
+    function reset() {
+        state = {
+            step: 1,
+            warm: 0
+        };
+        teacher.setAttribute('transform', 'translate(120,320)');
+        sceneCorr.setAttribute('opacity', '1');
+        sceneOffice.setAttribute('opacity', '0');
+        sceneClass.setAttribute('opacity', '0');
+        caption.textContent = '🎓 老师：出发！';
+        celebBtn.style.display = 'none';
+        save();
+        renderStep();
+    }
 
     // 头部按钮
     document.getElementById('restart').addEventListener('click', reset);
-    celebBtn.addEventListener('click', ()=> confettiBurst());
-    document.getElementById('share').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(location.href); alert('已复制分享链接'); }catch{ alert('复制失败，请手动复制地址栏链接'); } });
+    celebBtn.addEventListener('click', () => confettiBurst());
+    document.getElementById('share').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(location.href);
+            alert('已复制分享链接');
+        } catch {
+            alert('复制失败，请手动复制地址栏链接');
+        }
+    });
 
     // 初始化
-    load(); renderStep();
-  </script>
+    load();
+    renderStep();
+    </script>
 </body>
 </html>
